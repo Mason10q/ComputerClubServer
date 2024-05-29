@@ -7,6 +7,6 @@ const mainController = require("../controllers/mainController.js");
     
 mainRouter.post("/auth/signIn", authController.signIn);
 mainRouter.post("/auth/signUp", authController.signUp);
-mainRouter.post("/auth/profile/delete", authController.deleteProfile);
+mainRouter.post("/auth/profile/remove", authController.deleteProfile);
 
 module.exports = mainRouter;

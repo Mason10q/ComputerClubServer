@@ -33,25 +33,27 @@ function isPasswordCorrect(savedHash, passwordAttempt, callback) {
 
 exports.signUp = (req, res) => {
     let db = getDb();
-    const { name, email, birthDate} = req.body
+    const { name, email, birthDate, password } = req.body
+
+    console.log(req.body);
 
     db.connect();
 
     hashPassword(password, (hash) => {
-        let signup_query = "INSERT INTO Users SET?";
+        let signup_query = "INSERT INTO Users SET? RETURNING id";
         let check_email_query = "SELECT * FROM Users WHERE user_email = ?"
 
         db.query(check_email_query, [email], (err, rows, fields) => {
+            console.log(err);
             if(rows != undefined && rows.length != 0){
-                res.send(401)    
-                res.send("Такая почта уже зарегестрирована");
+                res.status(401).send("Такая почта уже зарегестрирована");
                 return;
             }
         });
 
         db.query(signup_query, {user_name: name, user_email: email, user_birth: birthDate, password_hash: hash}, (err, rows, fields)=>{
-            res.status(200);
-            res.send();
+            if(err != undefined) return;
+            res.status(200).json(rows[0]);
         });
         
         db.end();
@@ -72,20 +74,21 @@ exports.signIn = (req, res) => {
                     LIMIT 1";
 
     db.query(query, [email], (err, rows, fields) => {
+        console.log(err);
+        console.log(req.body);
+
+        console.log(rows);
 
         if(rows === undefined || rows.length === 0){
-            res.status(401);
-            res.send("Такая почта не зарегестрирована");
+            res.status(401).send("Такая почта не зарегестрирована");
             return;
         }
 
-        isPasswordCorrect(rows[0].password, password, (isCorrect) => {
+        isPasswordCorrect(rows[0].password_hash, password, (isCorrect) => {
             if(isCorrect){
-                res.status(200);
-                res.send();
+                res.status(200).json(rows[0]);
             } else{
-                res.status(402);
-                res.send("Пароль введён неверно");
+                res.status(402).send("Неверный пароль");
             }
         });
     });
