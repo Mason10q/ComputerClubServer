@@ -74,11 +74,7 @@ exports.signIn = (req, res) => {
                     LIMIT 1";
 
     db.query(query, [email], (err, rows, fields) => {
-        console.log(err);
-        console.log(req.body);
-
-        console.log(rows);
-
+        
         if(rows === undefined || rows.length === 0){
             res.status(401).send("Такая почта не зарегестрирована");
             return;
@@ -86,6 +82,7 @@ exports.signIn = (req, res) => {
 
         isPasswordCorrect(rows[0].password_hash, password, (isCorrect) => {
             if(isCorrect){
+                console.log(rows[0]);
                 res.status(200).json(rows[0]);
             } else{
                 res.status(402).send("Неверный пароль");
