@@ -52,7 +52,7 @@ exports.signUp = (req, res) => {
         });
 
         db.query(signup_query, {user_name: name, user_email: email, user_birth: birthDate, password_hash: hash}, (err, rows, fields)=>{
-            if(err != undefined) return;
+            console.log(err);
             res.status(200).json(rows[0]);
         });
         
